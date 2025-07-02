@@ -1,0 +1,75 @@
+{
+    "the_hindu_national_en": {
+      "url": "https://www.thehindu.com/news/national/feeder/default.rss",
+      "language": "en",
+      "region": "India",
+      "state": "All"
+    },
+    "toi_national_en": {
+      "url": "https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms",
+      "language": "en",
+      "region": "India",
+      "state": "All"
+    },
+    "dainik_jagran_national_hi": {
+      "url": "https://www.jagran.com/rss/news/national.xml",
+      "language": "hi",
+      "region": "India",
+      "state": "All"
+    },
+    "dinamalar_national_ta": {
+      "url": "https://www.dinamalar.com/rss_Latest_News.asp",
+      "language": "ta",
+      "region": "India",
+      "state": "Tamil Nadu"
+    },
+    "toi_tamil_nadu_en": {
+      "url": "https://timesofindia.indiatimes.com/rssfeeds/2950623.cms",
+      "language": "en",
+      "region": "India",
+      "state": "Tamil Nadu"
+    },
+    "dinakaran_tamil_nadu_ta": {
+      "url": "https://www.dinakaran.com/rss_Latest_News.asp",
+      "language": "ta",
+      "region": "India",
+      "state": "Tamil Nadu"
+    },
+    "toi_uttar_pradesh_en": {
+      "url": "https://timesofindia.indiatimes.com/rssfeeds/3942693.cms",
+      "language": "en",
+      "region": "India",
+      "state": "Uttar Pradesh"
+    },
+    "amar_ujala_uttar_pradesh_hi": {
+      "url": "https://www.amarujala.com/rss/uttar-pradesh-news.xml",
+      "language": "hi",
+      "region": "India",
+      "state": "Uttar Pradesh"
+    },
+    "dainik_bhaskar_madhya_pradesh_hi": {
+      "url": "https://www.bhaskar.com/rss-feed/madhya-pradesh-news/",
+      "language": "hi",
+      "region": "India",
+      "state": "Madhya Pradesh"
+    },
+    "toi_kerala_en": {
+      "url": "https://timesofindia.indiatimes.com/rssfeeds/5880659.cms",
+      "language": "en",
+      "region": "India",
+      "state": "Kerala"
+    },
+    "toi_maharashtra_en": {
+      "url": "https://timesofindia.indiatimes.com/rssfeeds/882792.cms",
+      "language": "en",
+      "region": "India",
+      "state": "Maharashtra"
+    },
+    "lokmat_maharashtra_mr": {
+      "url": "https://www.lokmat.com/rss/maharashtra-news.xml",
+      "language": "mr",
+      "region": "India",
+      "state": "Maharashtra"
+    }
+  }
+  

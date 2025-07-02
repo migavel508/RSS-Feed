@@ -1,0 +1,44 @@
+{
+  "The Times of India": {
+    "url": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+    "language": "English",
+    "region": "Multiple",
+    "state": "Pan-India"
+  },
+  "NDTV": {
+    "url": "https://feeds.feedburner.com/NDTV-LatestNews",
+    "language": "English",
+    "region": "National",
+    "state": "Pan-India"
+  },
+  "Dainik Jagran": {
+    "url": "http://rss.jagran.com/rss/news/national.xml",
+    "language": "Hindi",
+    "region": "North India",
+    "state": "Uttar Pradesh"
+  },
+  "Dinakaran": {
+    "url": "http://www.dinakaran.com/rss_dkn.asp",
+    "language": "Tamil",
+    "region": "South India",
+    "state": "Tamil Nadu"
+  },
+  "Deccan Herald": {
+    "url": "https://www.deccanherald.com/rss/feed",
+    "language": "English",
+    "region": "South India",
+    "state": "Karnataka"
+  },
+  "The Tribune": {
+    "url": "https://www.tribuneindia.com/rss/feed.aspx?cat_id=7",
+    "language": "English",
+    "region": "North India",
+    "state": "Punjab"
+  },
+  "Mathrubhumi": {
+    "url": "https://www.mathrubhumi.com/rss-feed-1.7275970",
+    "language": "Malayalam",
+    "region": "South India",
+    "state": "Kerala"
+  }
+}
