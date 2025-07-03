@@ -1,6 +1,48 @@
-# Getting Started with Create React App
+# RSS Feed Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the frontend application for the RSS Feed aggregator. It provides a user interface to view and filter RSS feeds from various news sources.
+
+## Features
+
+- View RSS feeds in a clean, modern interface
+- Filter feeds by:
+  - Language
+  - Region
+  - State
+  - Source
+- Real-time updates
+- Responsive design for mobile and desktop
+
+## Configuration
+
+### API Configuration
+
+The backend API endpoint is configured in `src/config.ts`. By default, it points to `http://localhost:8000`.
+
+To change the API endpoint:
+1. Create a `.env` file in the root directory
+2. Add the following line:
+   ```
+   REACT_APP_API_URL=your_api_url
+   ```
+
+### Sample Output
+
+The RSS Feed Dashboard displays feeds in the following format:
+
+```typescript
+interface Feed {
+  id: string;
+  title: string;
+  description: string;
+  link: string;
+  published_date: string;
+  source: string;
+  language: string;
+  region: string;
+  state: string;
+}
+```
 
 ## Available Scripts
 
@@ -8,39 +50,48 @@ In the project directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.\
+Runs the app in development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches the test runner in the interactive watch mode.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Project Structure
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+src/
+  ├── components/           # React components
+  │   └── RSSFeedDashboard.tsx  # Main dashboard component
+  ├── App.tsx              # Root component
+  ├── index.tsx           # Entry point
+  └── config.ts           # Configuration file
+```
 
-### `npm run eject`
+## Adding New Features
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+To add new features to the dashboard:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Create a new component in `src/components/`
+2. Import and use it in `RSSFeedDashboard.tsx`
+3. Add any new API calls in the appropriate component
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Development
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Learn More
+2. Start the development server:
+   ```bash
+   npm start
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Make sure the backend server is running before starting the frontend application.
