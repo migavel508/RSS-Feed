@@ -9,6 +9,11 @@ class Settings(BaseSettings):
     FEED_CONFIG_PATH: str = "feeds_config.json"
     FETCH_INTERVAL: int = 30  # minutes
     
+    # Neo4j settings
+    NEO4J_URI: str = "bolt://localhost:7687"
+    NEO4J_USER: str = "neo4j"
+    NEO4J_PASSWORD: str = "password"
+    
     class Config:
         env_file = ".env"
 

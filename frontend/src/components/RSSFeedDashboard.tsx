@@ -20,64 +20,66 @@ import * as XLSX from 'xlsx';
 
 interface Feed {
   id: number;
-  name: string;
-  url: string;
+  title: string;
+  description: string;
+  link: string;
+  published_date: string;
+  source: string;
   language: string;
   region: string;
   state: string;
-}
-
-interface Article {
-  id: number;
-  title: string;
-  link: string;
+  content: string;
+  author: string;
+  image_urls: string[];
+  keywords: string[];
   summary: string;
-  published: string;
-  feed: Feed;
+  extraction_success: boolean;
 }
 
 const RSSFeedDashboard: React.FC = () => {
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [feeds, setFeeds] = useState<Feed[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchArticles = async () => {
+  const fetchFeeds = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('http://localhost:8000/api/articles');
-      setArticles(response.data || []);
+      const response = await axios.get('http://localhost:8000/feeds/');
+      setFeeds(response.data || []);
     } catch (err) {
-      setError('Failed to fetch RSS articles. Please try again later.');
-      console.error('Error fetching articles:', err);
-      setArticles([]);
+      setError('Failed to fetch RSS feeds. Please try again later.');
+      console.error('Error fetching feeds:', err);
+      setFeeds([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchArticles();
+    fetchFeeds();
   }, []);
 
   const downloadExcel = () => {
-    if (!articles.length) return;
+    if (!feeds.length) return;
     
-    const exportData = articles.map(article => ({
-      Title: article.title,
-      Source: article.feed.name,
-      URL: article.link,
-      Summary: article.summary,
-      Published: new Date(article.published).toLocaleDateString(),
-      Language: article.feed.language,
-      Region: article.feed.region,
-      State: article.feed.state
+    const exportData = feeds.map(feed => ({
+      Title: feed.title,
+      Source: feed.source,
+      URL: feed.link,
+      Summary: feed.summary || feed.description,
+      Published: new Date(feed.published_date).toLocaleDateString(),
+      Language: feed.language,
+      Region: feed.region,
+      State: feed.state,
+      Author: feed.author,
+      Keywords: feed.keywords?.join(', ') || ''
     }));
     
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'RSS Articles');
-    XLSX.writeFile(workbook, 'rss_articles.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'RSS Feeds');
+    XLSX.writeFile(workbook, 'rss_feeds.xlsx');
   };
 
   return (
@@ -89,7 +91,7 @@ const RSSFeedDashboard: React.FC = () => {
         <Box>
           <Button
             startIcon={<RefreshIcon />}
-            onClick={fetchArticles}
+            onClick={fetchFeeds}
             sx={{ mr: 2 }}
             variant="contained"
             disabled={loading}
@@ -101,7 +103,7 @@ const RSSFeedDashboard: React.FC = () => {
             onClick={downloadExcel}
             variant="contained"
             color="secondary"
-            disabled={loading || !articles.length}
+            disabled={loading || !feeds.length}
           >
             Download Excel
           </Button>
@@ -118,7 +120,7 @@ const RSSFeedDashboard: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
           <CircularProgress />
         </Box>
-      ) : articles.length > 0 ? (
+      ) : feeds.length > 0 ? (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -127,25 +129,29 @@ const RSSFeedDashboard: React.FC = () => {
                 <TableCell>Source</TableCell>
                 <TableCell>Published Date</TableCell>
                 <TableCell>Summary</TableCell>
-                <TableCell>Link</TableCell>
+                <TableCell>Language</TableCell>
+                <TableCell>State</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {articles.map((article) => (
-                <TableRow key={article.id}>
-                  <TableCell>{article.title}</TableCell>
-                  <TableCell>{article.feed.name}</TableCell>
+              {feeds.map((feed) => (
+                <TableRow key={feed.id}>
+                  <TableCell>{feed.title}</TableCell>
+                  <TableCell>{feed.source}</TableCell>
                   <TableCell>
-                    {new Date(article.published).toLocaleDateString()}
+                    {feed.published_date ? new Date(feed.published_date).toLocaleDateString() : 'N/A'}
                   </TableCell>
-                  <TableCell className="description">
-                    {article.summary.length > 100
-                      ? `${article.summary.substring(0, 100)}...`
-                      : article.summary
+                  <TableCell>
+                    {(feed.summary || feed.description || '').length > 100
+                      ? `${(feed.summary || feed.description || '').substring(0, 100)}...`
+                      : (feed.summary || feed.description || 'No summary available')
                     }
                   </TableCell>
+                  <TableCell>{feed.language}</TableCell>
+                  <TableCell>{feed.state}</TableCell>
                   <TableCell>
-                    <Button href={article.link} target="_blank" rel="noopener noreferrer">
+                    <Button href={feed.link} target="_blank" rel="noopener noreferrer">
                       Visit
                     </Button>
                   </TableCell>
@@ -156,7 +162,7 @@ const RSSFeedDashboard: React.FC = () => {
         </TableContainer>
       ) : (
         <Alert severity="info" sx={{ mb: 3 }}>
-          No RSS articles available. Try refreshing the page.
+          No RSS feeds available. Try refreshing the page.
         </Alert>
       )}
     </Box>

@@ -1,86 +1,91 @@
 import feedparser
 from datetime import datetime
-from sqlalchemy.orm import Session
-from ..models import Feed, Article
-from ..database import SessionLocal
-from ..config import load_feed_config
+from typing import Dict, List, Optional
+import json
 import logging
-from typing import List, Dict
 from dateutil import parser as date_parser
+from ..content_extractor import ContentExtractor
+from ..database import SessionLocal
+from ..models import Feed, Article
+from sqlalchemy.orm import Session
+from sqlalchemy import exists
 
 logger = logging.getLogger(__name__)
 
-def parse_date(date_str: str) -> datetime:
-    try:
-        return date_parser.parse(date_str)
-    except:
-        return datetime.utcnow()
-
-def fetch_feed(feed: Feed) -> List[Dict]:
-    """Fetch articles from a single feed"""
-    try:
-        parsed = feedparser.parse(feed.url)
-        articles = []
+class RSSFetcher:
+    def __init__(self):
+        self.content_extractor = ContentExtractor()
         
-        for entry in parsed.entries:
-            articles.append({
-                "title": entry.get("title", ""),
-                "link": entry.get("link", ""),
-                "summary": entry.get("summary", ""),
-                "published": parse_date(entry.get("published", "")),
-                "feed_id": feed.id
-            })
-        
-        return articles
-    except Exception as e:
-        logger.error(f"Error fetching feed {feed.url}: {str(e)}")
-        return []
+    def parse_date(self, date_str: str) -> Optional[datetime]:
+        """Parse date string to datetime object"""
+        try:
+            if not date_str:
+                return None
+            return date_parser.parse(date_str)
+        except Exception as e:
+            logger.error(f"Error parsing date {date_str}: {str(e)}")
+            return None
 
-def sync_feeds_from_config(db: Session):
-    """Sync feeds from config file to database"""
-    config = load_feed_config()
-    
-    for name, data in config.items():
-        existing = db.query(Feed).filter(Feed.name == name).first()
-        if not existing:
-            feed = Feed(
-                name=name,
-                url=data["url"],
-                language=data.get("language", "Unknown"),
-                region=data.get("region", "Unknown"),
-                state=data.get("state", "Unknown")
-            )
-            db.add(feed)
-            db.commit()
-            db.refresh(feed)
+    def fetch_and_store_feeds(self, feeds_config: Dict) -> None:
+        """Fetch RSS feeds and store in database"""
+        db = SessionLocal()
+        try:
+            for feed_id, config in feeds_config.items():
+                self._process_feed(db, feed_id, config)
+        finally:
+            db.close()
 
-def fetch_all_feeds():
-    """Fetch all feeds and store new articles"""
-    db = SessionLocal()
-    try:
-        # First sync feeds from config
-        sync_feeds_from_config(db)
-        
-        feeds = db.query(Feed).all()
-        for feed in feeds:
-            articles = fetch_feed(feed)
-            for article_data in articles:
-                # Check if article already exists
-                exists = db.query(Article).filter(
-                    Article.link == article_data["link"]
-                ).first()
+    def _process_feed(self, db: Session, feed_id: str, config: Dict) -> None:
+        """Process a single RSS feed"""
+        try:
+            feed_data = feedparser.parse(config['url'])
+            
+            for entry in feed_data.entries:
+                if not self._entry_exists(db, entry.link):
+                    try:
+                        # Extract full content from the article URL
+                        content_data = self.content_extractor.extract_content(entry.link)
+                        
+                        # Create feed entry
+                        feed = Feed(
+                            title=entry.get('title', ''),
+                            description=entry.get('description', ''),
+                            link=entry.get('link', ''),
+                            published_date=self.parse_date(entry.get('published', '')),
+                            source=feed_id,
+                            language=config.get('language'),
+                            region=config.get('region'),
+                            state=config.get('state')
+                        )
+
+                        # Add content extraction data if available
+                        if content_data and content_data.get('extraction_success'):
+                            feed.content = content_data.get('text', '')
+                            feed.content_html = content_data.get('html', '')
+                            feed.author = content_data.get('author', '')
+                            feed.image_urls = content_data.get('image_urls', [])
+                            feed.keywords = content_data.get('keywords', [])
+                            feed.summary = content_data.get('summary', '')
+                            feed.extracted_by = content_data.get('extracted_by', '')
+                            feed.extraction_time = (
+                                datetime.fromisoformat(content_data['extraction_time'].replace('Z', '+00:00'))
+                                if content_data.get('extraction_time')
+                                else datetime.utcnow()
+                            )
+                            feed.extraction_success = True
+                        
+                        db.add(feed)
+                        db.commit()
+                        logger.info(f"Stored new feed entry: {entry.get('title', 'Untitled')}")
+                    except Exception as e:
+                        logger.error(f"Error processing entry {entry.get('link', 'unknown')}: {str(e)}")
+                        db.rollback()
+                        continue
                 
-                if not exists:
-                    article = Article(
-                        **article_data,
-                        created_at=datetime.utcnow()
-                    )
-                    db.add(article)
-            
-            db.commit()
-            
-    except Exception as e:
-        logger.error(f"Error in fetch_all_feeds: {str(e)}")
-        db.rollback()
-    finally:
-        db.close() 
+        except Exception as e:
+            logger.error(f"Error processing feed {feed_id}: {str(e)}")
+            db.rollback()
+
+    def _entry_exists(self, db: Session, link: str) -> bool:
+        """Check if an entry already exists in the database"""
+        return db.query(exists().where(Feed.link == link)).scalar() 
